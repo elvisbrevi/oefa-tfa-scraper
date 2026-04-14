@@ -1,0 +1,23 @@
+{
+  "name": "scraper-challenge",
+  "version": "1.0.0",
+  "description": "Scraper for OEFA Tribunal de Fiscalización Ambiental resolutions",
+  "main": "dist/scraper.js",
+  "scripts": {
+    "start": "ts-node src/scraper.ts",
+    "build": "tsc",
+    "start:built": "node dist/scraper.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0"
+  }
+}
