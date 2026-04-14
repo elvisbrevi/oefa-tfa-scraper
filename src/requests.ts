@@ -151,11 +151,11 @@ export async function fetchPage(session: Session, page: number, totalRecords: nu
 export async function downloadPdf(
   session: Session,
   uuid: string,
-  rowIndex: number
+  rowIndex: number  // global row index from JSF component ID (e.g. 10 for page 2 row 0)
 ): Promise<Buffer> {
   const params = buildBaseFormData(session);
 
-  // Mojarra jsfcljs form submit params
+  // Mojarra jsfcljs form submit params — must use the exact component ID from the onclick
   params.set(`${FORM_ID}:dt:${rowIndex}:j_idt63`, `${FORM_ID}:dt:${rowIndex}:j_idt63`);
   params.set('param_uuid', uuid);
 

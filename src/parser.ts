@@ -52,13 +52,15 @@ export function parsePaginationInfo(content: string): { totalRecords: number; to
 }
 
 /**
- * Extracts UUID from onclick attribute of PDF link.
- * onclick: "mojarra.jsfcljs(...,'param_uuid':'<uuid>',...)"
+ * Extracts UUID and global row index from onclick attribute of PDF link.
+ * onclick: "mojarra.jsfcljs(...,'listarDetalleInfraccionRAAForm:dt:10:j_idt63':...,'param_uuid':'<uuid>',...)"
+ * The row index (e.g. 10) is the global index used in the JSF component ID.
  */
-function extractUuid(onclick: string | undefined): string | null {
-  if (!onclick) return null;
-  const m = onclick.match(/param_uuid['":\s]+([a-f0-9-]{36})/);
-  return m ? m[1] : null;
+function extractPdfInfo(onclick: string | undefined): { uuid: string | null; rowIndex: number | null } {
+  if (!onclick) return { uuid: null, rowIndex: null };
+  const uuid = onclick.match(/param_uuid['":\s]+([a-f0-9-]{36})/)?.[1] ?? null;
+  const rowIndex = onclick.match(/:dt:(\d+):j_idt/)?.[1] ?? null;
+  return { uuid, rowIndex: rowIndex !== null ? parseInt(rowIndex, 10) : null };
 }
 
 function parseRows($: cheerio.CheerioAPI): Resolution[] {
@@ -83,9 +85,9 @@ function parseRows($: cheerio.CheerioAPI): Resolution[] {
     const sector = cells.eq(4).text().trim();
     const nroResolucion = cells.eq(5).text().trim();
 
-    // PDF link in last cell
+    // PDF link in last cell — extract UUID and global row index
     const pdfLink = cells.eq(6).find('a[onclick*="param_uuid"]');
-    const pdfUuid = extractUuid(pdfLink.attr('onclick'));
+    const { uuid: pdfUuid, rowIndex: pdfRowIndex } = extractPdfInfo(pdfLink.attr('onclick'));
 
     if (expediente || nroResolucion) {
       resolutions.push({
@@ -96,6 +98,7 @@ function parseRows($: cheerio.CheerioAPI): Resolution[] {
         sector,
         nroResolucion,
         pdfUuid,
+        pdfRowIndex,
       });
     }
   });

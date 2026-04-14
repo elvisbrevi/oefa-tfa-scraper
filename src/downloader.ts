@@ -36,15 +36,16 @@ export async function downloadWithRetry(
   session: Session,
   resolution: Resolution,
   pdfDir: string,
-  rowIndex: number,
   maxRetries = 5,
   initialBackoffMs = 2000,
   delayMs = 500
 ): Promise<{ success: boolean; failed?: FailedDownload }> {
-  if (!resolution.pdfUuid) {
-    console.log(`  [SKIP] No UUID for: ${resolution.nroResolucion}`);
-    return { success: false, failed: { uuid: '', filename: '', resolution, error: 'No UUID' } };
+  if (!resolution.pdfUuid || resolution.pdfRowIndex === null) {
+    console.log(`  [SKIP] No UUID/rowIndex for: ${resolution.nroResolucion}`);
+    return { success: false, failed: { uuid: resolution.pdfUuid ?? '', filename: '', resolution, error: 'No UUID or rowIndex' } };
   }
+
+  const rowIndex = resolution.pdfRowIndex;
 
   const filename = buildFilename(resolution);
   const filePath = path.join(pdfDir, filename);

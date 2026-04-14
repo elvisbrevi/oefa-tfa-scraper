@@ -6,6 +6,7 @@ export interface Resolution {
   sector: string;
   nroResolucion: string;
   pdfUuid: string | null;
+  pdfRowIndex: number | null; // global row index used in JSF component ID
 }
 
 export interface ScraperConfig {

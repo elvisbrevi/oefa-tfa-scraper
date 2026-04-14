@@ -164,7 +164,6 @@ async function downloadPagePdfs(
       session,
       resolution,
       config.pdfDir,
-      i % 10,
       config.maxRetries,
       config.initialBackoffMs,
       config.delayMs
