@@ -1,63 +1,63 @@
 # OEFA TFA Scraper
 
-Scraper for the [Repositorio Digital OEFA](https://publico.oefa.gob.pe/repdig/consulta/consultaTfa.xhtml) — extracts all resolutions from the Tribunal de Fiscalización Ambiental and downloads associated PDFs.
+Scraper para el [Repositorio Digital OEFA](https://publico.oefa.gob.pe/repdig/consulta/consultaTfa.xhtml) — extrae todas las resoluciones del Tribunal de Fiscalización Ambiental y descarga los PDFs asociados.
 
-## Requirements
+## Requisitos
 
-- Node.js 18+ (native `fetch` required)
+- Node.js 18+ (requiere `fetch` nativo)
 - npm
 
-## Installation
+## Instalación
 
 ```bash
 npm install
 ```
 
-## Usage
+## Uso
 
 ```bash
 npm start
 ```
 
-Or build first and run compiled JS:
+O compilar primero y ejecutar el JS generado:
 
 ```bash
 npm run build
 npm run start:built
 ```
 
-## Output
+## Archivos de salida
 
-| Path | Description |
+| Ruta | Descripción |
 |------|-------------|
-| `output/resolutions.json` | All extracted records (JSON) |
-| `output/resolutions.csv` | All extracted records (CSV) |
-| `output/failed_downloads.json` | PDFs that failed after all retries |
-| `pdfs/` | Downloaded PDF files |
+| `output/resolutions.json` | Todos los registros extraídos (JSON) |
+| `output/resolutions.csv` | Todos los registros extraídos (CSV) |
+| `output/failed_downloads.json` | PDFs que fallaron tras todos los reintentos |
+| `pdfs/` | Archivos PDF descargados |
 
-PDF filenames follow the pattern: `<nro-resolucion>_<administrado>.pdf`
+Los nombres de los PDFs siguen el patrón: `<nro-resolucion>_<administrado>.pdf`
 
-## How it works
+## Cómo funciona
 
-1. **Session**: GETs the page to obtain a `JSESSIONID` cookie and JSF `ViewState`.
-2. **Search**: POSTs with empty filters to retrieve all 1 753 records (176 pages, 10 per page).
-3. **Pagination**: Uses PrimeFaces AJAX partial-request to fetch each subsequent page, extracting the updated `ViewState` from each XML response.
-4. **PDF Download**: POSTs with `param_uuid` extracted from each row's onclick handler. Handles **429 Too Many Requests** with exponential backoff (up to 5 retries, doubling delay from 2 s).
-5. **Persistence**: Skips already-downloaded PDFs, logs all failures to `output/failed_downloads.json` for later retry.
+1. **Sesión**: hace un GET a la página para obtener la cookie `JSESSIONID` y el `ViewState` de JSF.
+2. **Búsqueda**: hace un POST con filtros vacíos para obtener los 1 753 registros completos (176 páginas, 10 por página).
+3. **Paginación**: usa peticiones AJAX parciales de PrimeFaces para obtener cada página, extrayendo el `ViewState` actualizado de cada respuesta XML.
+4. **Descarga de PDFs**: hace un POST con el `param_uuid` extraído del atributo `onclick` de cada fila. Maneja errores **429 Too Many Requests** con retroceso exponencial (hasta 5 reintentos, duplicando el tiempo de espera desde 2 s).
+5. **Persistencia**: omite PDFs ya descargados, registra todos los fallos en `output/failed_downloads.json` para reintento posterior. Guarda el progreso en `output/progress.json` para poder reanudar si se interrumpe.
 
-## Configuration
+## Configuración
 
-Edit the `DEFAULT_CONFIG` object in `src/scraper.ts`:
+Editar el objeto `DEFAULT_CONFIG` en `src/scraper.ts`:
 
-| Key | Default | Description |
-|-----|---------|-------------|
-| `delayMs` | `800` | Delay between requests (ms) |
-| `maxRetries` | `5` | Max retries per 429 error |
-| `initialBackoffMs` | `2000` | Initial backoff for first retry (doubles each attempt) |
+| Clave | Valor por defecto | Descripción |
+|-------|-------------------|-------------|
+| `delayMs` | `800` | Pausa entre peticiones (ms) |
+| `maxRetries` | `5` | Máximo de reintentos por error 429 |
+| `initialBackoffMs` | `2000` | Espera inicial en el primer reintento (se duplica en cada intento) |
 
-## Technical notes
+## Notas técnicas
 
-- No browser automation — pure HTTP (`fetch`) + HTML parsing (`cheerio`).
-- JSF ViewState is extracted from every response and carried forward.
-- Cookies (`JSESSIONID`) are maintained across all requests.
-- Pagination uses PrimeFaces DataTable AJAX params: `javax.faces.partial.ajax`, `dt_pagination`, `dt_first`, `dt_rows`, etc.
+- Sin automatización de navegador — HTTP puro (`fetch`) + análisis HTML (`cheerio`).
+- El ViewState de JSF se extrae de cada respuesta y se reutiliza en la siguiente petición.
+- Las cookies (`JSESSIONID`) se mantienen en todas las peticiones.
+- La paginación usa parámetros AJAX de PrimeFaces DataTable: `javax.faces.partial.ajax`, `dt_pagination`, `dt_first`, `dt_rows`, etc.
