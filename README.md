@@ -1,5 +1,7 @@
 # OEFA TFA Scraper
 
+> **Nombre:** `oefa` por el *Organismo de Evaluación y Fiscalización Ambiental* y `tfa` por el *Tribunal de Fiscalización Ambiental*, la sección específica del repositorio que se extrae.
+
 Scraper para el [Repositorio Digital OEFA](https://publico.oefa.gob.pe/repdig/consulta/consultaTfa.xhtml) — extrae todas las resoluciones del Tribunal de Fiscalización Ambiental y descarga los PDFs asociados.
 
 ## Requisitos
